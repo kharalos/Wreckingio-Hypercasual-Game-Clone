@@ -7,4 +7,6 @@ public class Arena : MonoBehaviour
 {
 
     public NavMeshSurface[] surfaces;
+
+
 }

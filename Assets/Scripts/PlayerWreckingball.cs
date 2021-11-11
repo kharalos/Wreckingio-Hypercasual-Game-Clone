@@ -48,4 +48,9 @@ public class PlayerWreckingball : MonoBehaviour
             else Debug.Log("Wrecking ball touched the other car.");
         }
     }
+    public void Spin() 
+    {
+
+    }
+
 }
