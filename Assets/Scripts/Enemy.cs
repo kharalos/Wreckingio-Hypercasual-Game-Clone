@@ -13,11 +13,16 @@ public class Enemy : MonoBehaviour
     [SerializeField]
     private Rigidbody ballRB;
     private float ballYPos;
+
+    private Animator animator;
+    private bool isDrifting;
+
     void Start()
     {
         springJoint = GetComponentInChildren<SpringJoint>();
         agent = GetComponentInChildren<NavMeshAgent>();
         ballYPos = ballRB.transform.position.y;
+        animator = GetComponentInChildren<Animator>();
     }
 
     void Update()
@@ -26,10 +31,10 @@ public class Enemy : MonoBehaviour
         {
             Vector3 centrePos = GameObject.FindGameObjectWithTag("Centre").transform.position;
             Vector3 playerPos = GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<NavMeshAgent>().transform.position;
-            Vector3 destination = (centrePos - playerPos).normalized * 5;
-            if ((playerPos - agent.transform.position).magnitude < 10)
+            Vector3 destination = (centrePos - playerPos).normalized * 7;
+            if ((playerPos - agent.transform.position).magnitude < 15 && !isDrifting)
             {
-                agent.transform.Rotate(Vector3.up, 8f, Space.Self);
+                StartCoroutine(Drift());
             }
             agent.SetDestination(playerPos + destination);
         }
@@ -47,12 +52,23 @@ public class Enemy : MonoBehaviour
         }
         if (inAir)
         {
-            Debug.DrawRay(agent.transform.position, Vector3.down * 1.5f, Color.red);
-            if (Physics.Raycast(agent.transform.position, Vector3.down, 1.5f, 64))
+            Debug.DrawRay(agent.transform.position, Vector3.down * 2, Color.red);
+            if (Physics.Raycast(agent.transform.position, Vector3.down, 2, 64))
             {
                 StartCoroutine(AirToGround());
             }
         }
+    }
+    private IEnumerator Drift()
+    {
+        isDrifting = true;
+        for (int i = 0; i < 10; i++)
+        {
+            agent.transform.position += agent.transform.forward / 3;
+            agent.transform.Rotate(Vector3.up, 1f, Space.Self);
+            yield return new WaitForSeconds(0.01f);
+        }
+        isDrifting = false;
     }
     public void AgentGotHit(float impactScore)
     {
@@ -65,7 +81,7 @@ public class Enemy : MonoBehaviour
     {
         inAir = false;
         Vector3 agentPos = agent.transform.position;
-        Vector3 targetPos = new Vector3(agentPos.x, 0.18816733360290528f, agentPos.z);
+        Vector3 targetPos = new Vector3(agentPos.x, -0.04999947547912598f, agentPos.z);
         Quaternion targetRot = new Quaternion(0, agent.transform.localRotation.y, 0, agent.transform.localRotation.w);
 
 

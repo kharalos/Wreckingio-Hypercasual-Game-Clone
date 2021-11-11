@@ -7,6 +7,9 @@ public class PlayerWreckingball : MonoBehaviour
     private Rigidbody rigidBody;
     [SerializeField]
     private float forcePower = 25000;
+
+    [SerializeField]
+    private Animator animator;
     void Start()
     {
         rigidBody = GetComponent<Rigidbody>();
@@ -39,6 +42,7 @@ public class PlayerWreckingball : MonoBehaviour
                 }
 
                 collision.gameObject.GetComponent<Rigidbody>().AddForce(launchDirection);
+                animator.SetTrigger("Hit");
                 Debug.Log("Enemy car launched.");
             }
             else Debug.Log("Wrecking ball touched the other car.");

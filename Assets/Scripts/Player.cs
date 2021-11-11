@@ -15,7 +15,7 @@ public class Player : MonoBehaviour
     [SerializeField]
     private Text velText;
 
-    public static bool tap, swipeLeft, swipeRight;
+    public static bool tap, swipeLeft, swipeRight, swipeUp, swipeDown;
     private bool isDraging = false;
     private Vector2 startTouch, swipeDelta;
     private Vector3 destination;
@@ -26,25 +26,29 @@ public class Player : MonoBehaviour
     [SerializeField]
     private Rigidbody ballRB;
     private float ballYPos;
+
+    private Animator animator;
+    private int rightDriftStack, leftDriftStack;
     void Start()
     {
         springJoint = GetComponentInChildren<SpringJoint>();
         cam = Camera.main;
         agent = GetComponentInChildren<NavMeshAgent>();
+        animator = GetComponentInChildren<Animator>();
         ballYPos = ballRB.transform.position.y;
     }
     void Update()
     {
         velText.text = GetComponentInChildren<Rigidbody>().velocity.magnitude.ToString(); ;
-        tap = swipeLeft = swipeRight = false;
+        tap = swipeDown = swipeUp = swipeLeft = swipeRight = false;
         #region Standalone Inputs
-        if (Input.GetMouseButton(0))
+        if (Input.GetMouseButtonDown(0))
         {
             tap = true;
             isDraging = true;
             startTouch = Input.mousePosition;
 
-            if (agent.enabled)
+            if (agent.enabled && rightDriftStack == 0 && leftDriftStack == 0)
             {
                 Ray ray = cam.ScreenPointToRay(Input.mousePosition);
                 RaycastHit hit;
@@ -56,8 +60,9 @@ public class Player : MonoBehaviour
                 }
             }
         }
-        if (Input.GetMouseButtonUp(0))
+        else if (Input.GetMouseButtonUp(0))
         {
+
             isDraging = false;
             Reset();
         }
@@ -100,13 +105,26 @@ public class Player : MonoBehaviour
             {
                 //Left or Right
                 if (x < 0)
+                {
                     swipeLeft = true;
+                }
                 else
+                {
                     swipeRight = true;
+                }
             }
+            else
+            {
+                //Up or Down
+                if (y < 0)
+                    swipeDown = true;
+                else
+                    swipeUp = true;
+            }
+
+            Reset();
         }
         Drift();
-            Reset();
 
         if (agent.transform.position.y < -10)
         {
@@ -122,8 +140,8 @@ public class Player : MonoBehaviour
         }
         if (inAir)
         {
-            Debug.DrawRay(agent.transform.position, Vector3.down * 1.5f, Color.red);
-            if (Physics.Raycast(agent.transform.position, Vector3.down, 1.5f, 64))
+            Debug.DrawRay(agent.transform.position, Vector3.down * 2, Color.red);
+            if (Physics.Raycast(agent.transform.position, Vector3.down, 2, 64))
             {
                 StartCoroutine(AirToGround());
             }
@@ -132,16 +150,44 @@ public class Player : MonoBehaviour
 
     private void Drift()
     {
-        if (swipeLeft)
+        if (swipeLeft && leftDriftStack < 3)
         {
-            agent.transform.Rotate(Vector3.left * 10f);
-            Debug.Log("Rotate Left");
+            StopCoroutine(RotateAgent(false));
+            StartCoroutine(RotateAgent(true));
+            Debug.Log("Swiped Left");
         }
 
-        if (swipeRight)
+        if (swipeRight && rightDriftStack < 3)
         {
-            agent.transform.Rotate(Vector3.right * 10f);
-            Debug.Log("Rotate Right");
+            StopCoroutine(RotateAgent(true));
+            StartCoroutine(RotateAgent(false));
+            Debug.Log("Swiped Right");
+        }
+    }
+
+    private IEnumerator RotateAgent(bool Left)
+    {
+        if (Left)
+        {
+            leftDriftStack++;
+            for (int i = 0; i < 50; i++)
+            {
+                agent.transform.position += agent.transform.forward / 8;
+                agent.transform.Rotate(Vector3.up, 3f, Space.Self);
+                yield return new WaitForSeconds(0.01f);
+            }
+            leftDriftStack--;
+        }
+        else
+        {
+            rightDriftStack++;
+            for (int i = 0; i < 50; i++)
+            {
+                agent.transform.position += agent.transform.forward / 8;
+                agent.transform.Rotate(Vector3.up, -3f, Space.Self);
+                yield return new WaitForSeconds(0.01f);
+            }
+            rightDriftStack--;
         }
     }
 
@@ -166,7 +212,7 @@ public class Player : MonoBehaviour
     {
         inAir = false;
         Vector3 agentPos = agent.transform.position;
-        Vector3 targetPos = new Vector3(agentPos.x, 0.18816733360290528f, agentPos.z);
+        Vector3 targetPos = new Vector3(agentPos.x, -0.04999947547912598f, agentPos.z);
         Quaternion targetRot = new Quaternion(0, agent.transform.localRotation.y, 0, agent.transform.localRotation.w);
 
 
