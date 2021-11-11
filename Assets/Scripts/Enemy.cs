@@ -6,54 +6,78 @@ using UnityEngine.AI;
 public class Enemy : MonoBehaviour
 {
     private SpringJoint springJoint;
-    private NavMeshAgent agent; 
+    private NavMeshAgent agent;
+    private bool inAir;
+    private bool gotHit;
+
+    [SerializeField]
+    private Rigidbody ballRB;
+    private float ballYPos;
     void Start()
     {
         springJoint = GetComponentInChildren<SpringJoint>();
         agent = GetComponentInChildren<NavMeshAgent>();
+        ballYPos = ballRB.transform.position.y;
     }
 
     void Update()
     {
         if (agent.enabled)
         {
-            agent.SetDestination(GameObject.FindGameObjectWithTag("SwirlingTarget").transform.position);
+            Vector3 centrePos = GameObject.FindGameObjectWithTag("Centre").transform.position;
+            Vector3 playerPos = GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<NavMeshAgent>().transform.position;
+            Vector3 destination = (centrePos - playerPos).normalized * 5;
+            if ((playerPos - agent.transform.position).magnitude < 10)
+            {
+                agent.transform.Rotate(Vector3.up, 8f, Space.Self);
+            }
+            agent.SetDestination(playerPos + destination);
         }
-        if(agent.transform.position.y < -10)
+        if (agent.transform.position.y < -10)
         {
             Destroy(gameObject);
         }
+        if (gotHit)
+        {
+            if (GetComponentInChildren<Rigidbody>().velocity.magnitude < 1)
+            {
+                gotHit = false;
+                inAir = true;
+            }
+        }
+        if (inAir)
+        {
+            Debug.DrawRay(agent.transform.position, Vector3.down * 1.5f, Color.red);
+            if (Physics.Raycast(agent.transform.position, Vector3.down, 1.5f, 64))
+            {
+                StartCoroutine(AirToGround());
+            }
+        }
     }
-
     public void AgentGotHit(float impactScore)
     {
         agent.enabled = false;
-        impactScore /= 10;
-        Debug.Log(impactScore);
-        StartCoroutine(FloatingCorouting(impactScore));
+        gotHit = true;
+        ballRB.constraints = RigidbodyConstraints.None;
+        Debug.Log("Player ball hit enemy with velocity of " + impactScore);
     }
-
-    private IEnumerator FloatingCorouting(float waitTime)
+    private IEnumerator AirToGround()
     {
-        yield return new WaitForSeconds(waitTime);
+        inAir = false;
         Vector3 agentPos = agent.transform.position;
         Vector3 targetPos = new Vector3(agentPos.x, 0.18816733360290528f, agentPos.z);
         Quaternion targetRot = new Quaternion(0, agent.transform.localRotation.y, 0, agent.transform.localRotation.w);
-        Debug.DrawRay(agentPos, Vector3.down*10, Color.red);
-        if (Physics.Raycast(agentPos, Vector3.down, out RaycastHit slopeHit))
+
+
+        for (int i = 0; i < 8; i++)
         {
-            if (waitTime > 1)
-            {
-                for (int i = 0; i < 100; i++)
-                {
-                    yield return new WaitForSeconds(waitTime/100);
-                    agent.transform.position = Vector3.Lerp(agent.transform.position, targetPos, 0.1f);
-                    agent.transform.localRotation = Quaternion.Lerp(agent.transform.localRotation, targetRot, 0.1f);
-                }
-            }
-            agent.enabled = true;
+            yield return new WaitForSeconds(0.01f);
+            agent.transform.position = Vector3.Lerp(agent.transform.position, targetPos, 0.5f);
+            agent.transform.localRotation = Quaternion.Lerp(agent.transform.localRotation, targetRot, 0.5f);
+            ballRB.transform.position = Vector3.Lerp(ballRB.transform.position, new Vector3(ballRB.transform.position.x, ballYPos, ballRB.transform.position.z), 0.5f);
         }
-        else
-            agent.enabled = false;
+        ballRB.constraints = RigidbodyConstraints.FreezePositionY;
+        agent.enabled = true;
     }
 }
+

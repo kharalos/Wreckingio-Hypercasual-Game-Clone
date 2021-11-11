@@ -18,19 +18,27 @@ public class EnemyWreckingball : MonoBehaviour
 
             Player player = collision.gameObject.GetComponentInParent<Player>();
             float vel = rigidBody.velocity.magnitude;
-            if (vel > 0.5f)
+            if (vel > 0.3f)
             {
                 player.AgentGotHit(vel);
 
                 Vector3 dir = (collision.gameObject.transform.position - gameObject.transform.position).normalized;
                 dir.y = 0;
+                dir.Normalize();
                 Vector3 launchDirection;
 
-                if (vel < 1) launchDirection = (dir + Vector3.up) * forcePower;
-                else launchDirection = (dir + Vector3.up) * (vel) * forcePower;
+                if (vel < 1)
+                {
+                    launchDirection = dir * forcePower;
+                }
+                else
+                {
+                    dir = ((dir) + Vector3.up).normalized;
 
+                    launchDirection = dir * (vel) * forcePower;
+                }
                 collision.gameObject.GetComponent<Rigidbody>().AddForce(launchDirection);
-                Debug.Log("Enemy car launched.");
+                Debug.Log("Player car launched.");
             }
             else Debug.Log("Wrecking ball touched the other car.");
         }

@@ -6,4 +6,5 @@ using UnityEngine.AI;
 public class Arena : MonoBehaviour
 {
 
+    public NavMeshSurface[] surfaces;
 }
