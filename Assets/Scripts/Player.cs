@@ -72,7 +72,7 @@ public class Player : MonoBehaviour
             {
                 for (int i = 0; i < 100; i++)
                 {
-                    yield return new WaitForSeconds(waitTime / 200);
+                    yield return new WaitForSeconds(waitTime / 100);
                     agent.transform.position = Vector3.Lerp(agent.transform.position, targetPos, 0.1f);
                     agent.transform.localRotation = Quaternion.Lerp(agent.transform.localRotation, targetRot, 0.1f);
                 }
