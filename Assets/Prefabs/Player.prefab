@@ -2848,7 +2848,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 10
+      scalar: 50
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -7006,10 +7006,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   driftPivotPoint: {fileID: 4437953179297195551}
-  maxClampX: 50
+  maxClampX: 100
   maxClampY: 100
-  carSpeed: 6
-  driftSpeed: 6
+  carSpeed: 5
+  driftSpeed: 5
   tireTracks:
   - {fileID: 3413895716802247701}
   - {fileID: 6611671963370591099}
