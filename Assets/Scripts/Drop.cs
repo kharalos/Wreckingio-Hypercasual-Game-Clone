@@ -11,13 +11,20 @@ public class Drop : MonoBehaviour
         if(collision.gameObject.tag == "Car")
         {
             //Powerup
-            collision.gameObject.transform.parent.parent.GetComponentInChildren<WreckingBallControll>().Spin();
+            collision.gameObject.transform.parent.GetComponentInChildren<WreckingBallControll>().Spin();
 
             Destroy(gameObject);
         }
         else
         {
             parachute.SetActive(false);
+        }
+    }
+    private void Update()
+    {
+        if (transform.position.y < -10)
+        {
+            Destroy(gameObject);
         }
     }
 }

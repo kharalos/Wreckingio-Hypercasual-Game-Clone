@@ -5,32 +5,29 @@ using UnityEngine;
 public class EnemyController : MonoBehaviour
 {
     [SerializeField]
-    private GameObject car;
-    private Rigidbody carRB;
+    private GameObject driftPivotPoint;
 
     private bool inAir;
     private bool landing;
-    // Start is called before the first frame update
-    void Start()
-    {
-        carRB = car.GetComponent<Rigidbody>();
-    }
 
     // Update is called once per frame
     void Update()
     {
         if (transform.position.y < -10)
         {
-            Destroy(gameObject);
+            Destroy(gameObject.transform.parent.gameObject);
         }
-        if (transform.position.y > 2 && !landing)
+        if (transform.position.y > 0.5f && !landing)
         {
             inAir = true;
         }
         if (inAir)
         {
-            Debug.DrawRay(car.transform.position, Vector3.down * 2, Color.red);
-            if (Physics.Raycast(car.transform.position, Vector3.down, 2, 64))
+            var size = GetComponent<BoxCollider>().size;
+            Debug.DrawRay(transform.position, Vector3.down * 0.1f, Color.red); Debug.DrawRay(transform.position, Vector3.up * (size.y + 0.1f), Color.red);
+            Debug.DrawRay(transform.position, Vector3.left * (size.z / 2 + 0.1f), Color.red); Debug.DrawRay(transform.position, Vector3.right * (size.z / 2 + 0.1f), Color.red);
+            if (Physics.Raycast(transform.position, Vector3.down, 0.1f, 64) || Physics.Raycast(transform.position, Vector3.up, size.y + 0.1f, 64)
+                || Physics.Raycast(transform.position, Vector3.left, size.z / 2 + 0.1f, 64) || Physics.Raycast(transform.position, Vector3.right, size.z / 2 + 0.1f, 64))
             {
                 StartCoroutine(AirToGroundCounter());
             }
@@ -42,11 +39,11 @@ public class EnemyController : MonoBehaviour
     }
     private void AirToGround()
     {
-        Vector3 carPos = car.transform.position;
+        Vector3 carPos = transform.position;
         Vector3 targetPos = new Vector3(carPos.x, -0.05f, carPos.z);
-        Quaternion targetRot = new Quaternion(0, car.transform.localRotation.y, 0, car.transform.localRotation.w);
-        car.transform.position = Vector3.Lerp(car.transform.position, targetPos, 0.5f);
-        car.transform.localRotation = Quaternion.Lerp(car.transform.localRotation, targetRot, 0.5f);
+        Quaternion targetRot = new Quaternion(0, transform.localRotation.y, 0, transform.localRotation.w);
+        transform.position = Vector3.Lerp(transform.position, targetPos, 0.5f);
+        transform.localRotation = Quaternion.Lerp(transform.localRotation, targetRot, 0.5f);
     }
 
     private IEnumerator AirToGroundCounter()
