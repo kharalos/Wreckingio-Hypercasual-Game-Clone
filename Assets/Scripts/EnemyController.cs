@@ -24,10 +24,8 @@ public class EnemyController : MonoBehaviour
         if (inAir)
         {
             var size = GetComponent<BoxCollider>().size;
-            Debug.DrawRay(transform.position, Vector3.down * 0.1f, Color.red); Debug.DrawRay(transform.position, Vector3.up * (size.y + 0.1f), Color.red);
-            Debug.DrawRay(transform.position, Vector3.left * (size.z / 2 + 0.1f), Color.red); Debug.DrawRay(transform.position, Vector3.right * (size.z / 2 + 0.1f), Color.red);
-            if (Physics.Raycast(transform.position, Vector3.down, 0.1f, 64) || Physics.Raycast(transform.position, Vector3.up, size.y + 0.1f, 64)
-                || Physics.Raycast(transform.position, Vector3.left, size.z / 2 + 0.1f, 64) || Physics.Raycast(transform.position, Vector3.right, size.z / 2 + 0.1f, 64))
+            Debug.DrawRay(transform.position, -transform.up * 0.1f, Color.red); Debug.DrawRay(transform.position, transform.up * (size.y + 0.1f), Color.red);
+            if (Physics.Raycast(transform.position, -transform.up, 0.1f, 64) || Physics.Raycast(transform.position, transform.up, size.y + 0.1f, 64))
             {
                 StartCoroutine(AirToGroundCounter());
             }
