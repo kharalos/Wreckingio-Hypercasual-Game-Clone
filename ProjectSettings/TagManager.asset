@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Enemy
   - Centre
+  - Car
+  - Ball
   layers:
   - Default
   - TransparentFX

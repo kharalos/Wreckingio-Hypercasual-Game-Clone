@@ -1,11 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
     [SerializeField]
     private GameObject drop;
+    [SerializeField]
+    private Text debugText;
+    [SerializeField]
+    private Rigidbody carRB;
     // Start is called before the first frame update
     void Start()
     {
@@ -15,7 +20,7 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        debugText.text = "Velocity: " + carRB.velocity.magnitude;
     }
 
     private void SpawnDrop()

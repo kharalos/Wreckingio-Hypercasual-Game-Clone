@@ -3051,3 +3051,4 @@ Received Import Request.
 Start importing Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset using Guid(8f586378b4e144a9851e7b34d9b748ee) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'f1280cc7be10b532b2897fc8654f95d3') in 0.046902 seconds 
   Import took 0.051208 seconds .
 
+AssetImportWorkerClient::OnTransportError - code=2 error=End of file

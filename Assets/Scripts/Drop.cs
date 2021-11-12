@@ -8,17 +8,10 @@ public class Drop : MonoBehaviour
     private GameObject parachute;
     private void OnCollisionEnter(Collision collision)
     {
-        if(collision.gameObject.tag == "Enemy")
+        if(collision.gameObject.tag == "Car")
         {
             //Powerup
-            collision.gameObject.transform.parent.GetComponentInChildren<EnemyWreckingball>().Spin();
-
-            Destroy(gameObject);
-        }
-        else if(collision.gameObject.tag == "Player")
-        {
-            //Powerup
-            collision.gameObject.transform.parent.GetComponentInChildren<PlayerWreckingball>().Spin();
+            collision.gameObject.transform.parent.parent.GetComponentInChildren<WreckingBallControll>().Spin();
 
             Destroy(gameObject);
         }
