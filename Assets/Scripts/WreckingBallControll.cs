@@ -16,8 +16,15 @@ public class WreckingBallControll : MonoBehaviour
     [SerializeField]
     LineRenderer robe;
 
+    private TrailRenderer trail;
+
+    private bool isPlayer;
     void Start()
     {
+        trail = GetComponent<TrailRenderer>();
+        trail.emitting = false;
+        if (transform.parent.gameObject.tag == "Player") isPlayer = true;
+        else isPlayer = false;
         m_Rigidbody = GetComponent<Rigidbody>();
         targetOriginalLocalPos = targetPos.localPosition;
         isSpinning = false;
@@ -31,10 +38,12 @@ public class WreckingBallControll : MonoBehaviour
         {
             targetPos.RotateAround(carPos.position, Vector3.up, 10f);
             robe.enabled = false;
+            trail.emitting = true;
         }
         else
         {
             robe.enabled = true;
+            trail.emitting = false;
             targetPos.localPosition = targetOriginalLocalPos;
         }
     }
@@ -59,6 +68,8 @@ public class WreckingBallControll : MonoBehaviour
             gameObject.GetComponentInParent<AnimatorController>().Hit();
 
             Debug.Log($"Car launched with velocity of {vel}.");
+
+            if (isPlayer) transform.parent.GetComponent<Customizer>().Hit(vel);
         }
     }
 }

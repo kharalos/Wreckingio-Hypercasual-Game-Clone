@@ -12,10 +12,11 @@ public class PlayerController : MonoBehaviour
     private bool inAir;
     private bool landing;
     private bool carActive;
-    private bool drifting;
+
+    private float maxClampX = 720, maxClampY = 1280f;
 
     [SerializeField]
-    private float maxClampX = 50, maxClampY = 100f, carSpeed = 6f, driftSpeed = 6f;
+    private float carSpeed = 100f, driftSpeed = 100f;
 
     private float horizontal, vertical;
 
@@ -35,6 +36,11 @@ public class PlayerController : MonoBehaviour
         swipeDirection = Vector2.zero;
         currentMousePos = Vector2.zero;
         startTouch = Vector2.zero;
+
+        Debug.Log(Screen.height + " , " + Screen.width);
+
+        maxClampX = Screen.width;
+        maxClampY = Screen.height;
     }
 
 
@@ -61,7 +67,7 @@ public class PlayerController : MonoBehaviour
         var emission = driftEffect.emission;
         if (horizontal != 0)
         {
-            emission.rateOverTime = horizontal;
+            emission.rateOverTime = horizontal * 100;
         }
         else
         {
@@ -75,7 +81,8 @@ public class PlayerController : MonoBehaviour
 
         if (transform.position.y < -10)
         {
-            Debug.LogError("You died.");
+            FindObjectOfType<GameManager>().YouLose();
+            Destroy(transform.parent.gameObject);
         }
         if (transform.position.y > 0.5f && !landing)
         {
@@ -89,6 +96,10 @@ public class PlayerController : MonoBehaviour
             Debug.DrawRay(transform.position, Vector3.left * (size.z / 2 + 0.1f), Color.red); Debug.DrawRay(transform.position, Vector3.right * (size.z / 2 + 0.1f), Color.red);
             if (Physics.Raycast(transform.position, Vector3.down, 0.1f, 64) || Physics.Raycast(transform.position, Vector3.up, size.y + 0.1f, 64)
                 || Physics.Raycast(transform.position, Vector3.left, size.z / 2 + 0.1f, 64) || Physics.Raycast(transform.position, Vector3.right, size.z / 2 + 0.1f, 64))
+            {
+                StartCoroutine(AirToGroundCounter());
+            }
+            if (GetComponent<Rigidbody>().velocity.magnitude < 0.1f)
             {
                 StartCoroutine(AirToGroundCounter());
             }
@@ -120,14 +131,17 @@ public class PlayerController : MonoBehaviour
         horizontal /= maxClampX;
         Mathf.Clamp(vertical, -maxClampY, maxClampY);
         vertical /= maxClampY;
-        Debug.Log($"Horizontal: {horizontal}, Vertical: {vertical}");
+    }
+    public string GetSwipeValues() 
+    {
+        return horizontal.ToString() + " , " + vertical.ToString();
     }
 
     private void MoveCar()
     {
         //transform.Rotate(Vector3.up, (horizontal * driftSpeed) / 10, Space.Self);
-        transform.RotateAround(driftPivotPoint.transform.position, Vector3.up, (horizontal * driftSpeed) / 10);
-        transform.position += (transform.right * vertical * carSpeed) / 100;
+        transform.RotateAround(driftPivotPoint.transform.position, Vector3.up, horizontal * driftSpeed);
+        transform.position += transform.right * vertical * carSpeed * Time.deltaTime;
     }
 
     private void AirToGround()
