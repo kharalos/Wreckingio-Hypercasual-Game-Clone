@@ -7,20 +7,75 @@ public class EnemyController : MonoBehaviour
     [SerializeField]
     private GameObject driftPivotPoint;
 
+    [SerializeField]
+    private float driftSpeed = 5, carSpeed = 10;
+
     private bool inAir;
     private bool landing;
+    private bool isDrifting;
 
-    // Update is called once per frame
+    [SerializeField]
+    private TrailRenderer[] tireTracks;
+    [SerializeField]
+    private ParticleSystem driftEffect;
+
+    private Vector3 centrePos, playerPos, lookPos, destination;
+
+    private Rigidbody m_Rigidbody;
+    private void Start()
+    {
+        m_Rigidbody = GetComponent<Rigidbody>();
+        FindObjectOfType<GameManager>().EnemyNumberChange(true);
+    }
+    private void FixedUpdate()
+    {
+        if (landing) AirToGround();
+        if (isDrifting) transform.RotateAround(driftPivotPoint.transform.position, Vector3.up, driftSpeed);
+        if (!inAir)
+        {
+            if (!isDrifting)
+                transform.rotation = Quaternion.Slerp(transform.rotation
+                                      , Quaternion.LookRotation((playerPos + destination) - transform.position)
+                                      , 3f * Time.deltaTime);
+
+            /* Move at Player*/
+            transform.position += transform.forward * carSpeed * Time.deltaTime;
+        }
+    }
     void Update()
     {
+
+        centrePos = GameObject.FindGameObjectWithTag("Centre").transform.position;
+        if(GameObject.FindGameObjectWithTag("Player"))
+            playerPos = GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<PlayerController>().transform.position;
+
+        destination = (centrePos - playerPos).normalized * 7;
+
+        if ((playerPos - transform.position).magnitude < 15)
+        {
+            isDrifting = true;
+        }
+        else isDrifting = false;
+
         if (transform.position.y < -10)
         {
+            FindObjectOfType<GameManager>().EnemyNumberChange(false);
             Destroy(gameObject.transform.parent.gameObject);
+        }
+        var emission = driftEffect.emission;
+        if (isDrifting)
+        {
+            emission.rateOverTime = 20;
+        }
+        else
+        {
+            emission.rateOverTime = 0;
         }
         if (transform.position.y > 0.5f && !landing)
         {
             inAir = true;
         }
+
         if (inAir)
         {
             var size = GetComponent<BoxCollider>().size;
@@ -29,12 +84,25 @@ public class EnemyController : MonoBehaviour
             {
                 StartCoroutine(AirToGroundCounter());
             }
+            if (GetComponent<Rigidbody>().velocity.magnitude < 0.1f)
+            {
+                StartCoroutine(AirToGroundCounter());
+            }
+            for (int i = 0; i < tireTracks.Length; i++)
+            {
+                tireTracks[i].emitting = false;
+            }
         }
+        else
+        {
+            for (int i = 0; i < tireTracks.Length; i++)
+            {
+                tireTracks[i].emitting = true;
+            }
+        }
+
     }
-    private void FixedUpdate()
-    {
-        if (landing) AirToGround();
-    }
+
     private void AirToGround()
     {
         Vector3 carPos = transform.position;

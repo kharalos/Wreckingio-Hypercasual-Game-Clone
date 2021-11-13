@@ -8,8 +8,12 @@ public class CameraManager : MonoBehaviour
     private Transform playerTransform;
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        transform.LookAt(playerTransform);
+        if (playerTransform)
+        {
+            transform.LookAt(playerTransform);
+            transform.position = Vector3.Lerp(transform.position, new Vector3(playerTransform.position.x, playerTransform.position.y + 15f, playerTransform.position.z + 15f), 0.5f);
+        }
     }
 }

@@ -13,4 +13,8 @@ public class AnimatorController : MonoBehaviour
     {
         animator.SetTrigger("Hit");
     }
+    public void Won()
+    {
+        animator.SetTrigger("Won");
+    }
 }
