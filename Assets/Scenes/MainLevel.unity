@@ -1843,6 +1843,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4170284186343195186, guid: 1a7f5f1d4c0f51749b24b75e502db1d0, type: 3}
+      propertyPath: m_fontColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4170284186343195186, guid: 1a7f5f1d4c0f51749b24b75e502db1d0, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 6265960469636610464, guid: 1a7f5f1d4c0f51749b24b75e502db1d0, type: 3}
       propertyPath: m_RootOrder
       value: 4

@@ -39,8 +39,8 @@ public class PlayerController : MonoBehaviour
 
         Debug.Log(Screen.height + " , " + Screen.width);
 
-        maxClampX = Screen.width;
-        maxClampY = Screen.height;
+        maxClampX = Screen.width/2;
+        maxClampY = Screen.height/3;
     }
 
 
@@ -65,9 +65,9 @@ public class PlayerController : MonoBehaviour
         }
         ClampSwipe();
         var emission = driftEffect.emission;
-        if (horizontal != 0)
+        if (horizontal != 0 && !inAir)
         {
-            emission.rateOverTime = horizontal * 100;
+            emission.rateOverTime = Mathf.Abs(horizontal * 50);
         }
         else
         {
@@ -127,10 +127,10 @@ public class PlayerController : MonoBehaviour
     }
     private void ClampSwipe()
     {
-        Mathf.Clamp(horizontal, -maxClampX, maxClampX);
         horizontal /= maxClampX;
-        Mathf.Clamp(vertical, -maxClampY, maxClampY);
+        horizontal = Mathf.Clamp(horizontal, -1, 1);
         vertical /= maxClampY;
+        vertical = Mathf.Clamp(vertical, -1, 1);
     }
     public string GetSwipeValues() 
     {
@@ -141,7 +141,7 @@ public class PlayerController : MonoBehaviour
     {
         //transform.Rotate(Vector3.up, (horizontal * driftSpeed) / 10, Space.Self);
         transform.RotateAround(driftPivotPoint.transform.position, Vector3.up, horizontal * driftSpeed);
-        transform.position += transform.right * vertical * carSpeed * Time.deltaTime;
+        transform.position += transform.right * carSpeed * Time.deltaTime;
     }
 
     private void AirToGround()

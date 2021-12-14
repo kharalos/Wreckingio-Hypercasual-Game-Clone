@@ -74,6 +74,7 @@ public class Customizer : MonoBehaviour
         }
         driverMesh.materials[0].color = firstColor;
         driverMesh.materials[1].color = secondColor;
+        //playerName.color = new Color32(((byte)secondColor.r), ((byte)secondColor.g), ((byte)secondColor.b),((byte)Color.black.a));
     }
     public void Hit(float velocity)
     {
